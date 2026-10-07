@@ -1,6 +1,7 @@
 import * as config from "trix/config"
 import { ZERO_WIDTH_SPACE } from "trix/constants"
 import { copyObject, escapeAngleBracketsInJSON, makeElement } from "trix/core/helpers"
+import Middleware from "trix/core/middleware"
 import ObjectView from "trix/views/object_view"
 import HTMLSanitizer from "trix/models/html_sanitizer"
 import DOMPurify from "dompurify"
@@ -13,6 +14,7 @@ export default class AttachmentView extends ObjectView {
     this.attachment = this.object
     this.attachment.uploadProgressDelegate = this
     this.attachmentPiece = this.options.piece
+    this.renderMiddleware = new Middleware()
   }
 
   createContentNodes() {
@@ -20,6 +22,10 @@ export default class AttachmentView extends ObjectView {
   }
 
   createNodes() {
+    return this.renderMiddleware.run(this, (context) => context.createNodesOriginal())
+  }
+
+  createNodesOriginal() {
     const figure = this.createFigureElement()
     const innerElement = this.createInnerElement(figure)
 
