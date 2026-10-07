@@ -20,20 +20,36 @@ export default class AttachmentView extends ObjectView {
   }
 
   createNodes() {
-    let innerElement
-    const figure = innerElement = makeElement({
+    const figure = this.createFigureElement()
+    const innerElement = this.createInnerElement(figure)
+
+    this.renderContent(innerElement)
+    this.appendCaption(innerElement)
+    this.appendProgress(figure)
+
+    return [ createCursorTarget("left"), figure, createCursorTarget("right") ]
+  }
+
+  createFigureElement() {
+    return makeElement({
       tagName: "figure",
       className: this.getClassName(),
       data: this.getData(),
       editable: false,
     })
+  }
 
+  createInnerElement(figure) {
     const href = this.getHref()
     if (href) {
-      innerElement = makeElement({ tagName: "a", editable: false, attributes: { href, tabindex: -1 } })
+      const innerElement = makeElement({ tagName: "a", editable: false, attributes: { href, tabindex: -1 } })
       figure.appendChild(innerElement)
+      return innerElement
     }
+    return figure
+  }
 
+  renderContent(innerElement) {
     if (this.attachment.hasContent()) {
       HTMLSanitizer.setHTML(innerElement, this.attachment.getContent())
     } else {
@@ -41,9 +57,13 @@ export default class AttachmentView extends ObjectView {
         innerElement.appendChild(node)
       })
     }
+  }
 
+  appendCaption(innerElement) {
     innerElement.appendChild(this.createCaptionElement())
+  }
 
+  appendProgress(figure) {
     if (this.attachment.isPending()) {
       this.progressElement = makeElement({
         tagName: "progress",
@@ -60,8 +80,6 @@ export default class AttachmentView extends ObjectView {
 
       figure.appendChild(this.progressElement)
     }
-
-    return [ createCursorTarget("left"), figure, createCursorTarget("right") ]
   }
 
   createCaptionElement() {
