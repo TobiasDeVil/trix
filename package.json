@@ -58,11 +58,13 @@
     "shell-quote": "^1.8.4"
   },
   "scripts": {
-    "build-css": "bin/sass-build assets/trix.scss dist/trix.css action_text-trix/app/assets/stylesheets/trix.css",
+    "build-css": "node bin/sass-build assets/trix.scss dist/trix.css action_text-trix/app/assets/stylesheets/trix.css",
     "build-js": "rollup -c",
-    "build-assets": "cp -f assets/*.html dist/",
+    "build-assets": "node bin/copy-assets",
     "build-ruby": "rake -C action_text-trix sync",
     "build": "yarn run build-js && yarn run build-css && yarn run build-assets && yarn run build-ruby",
+    "build:dev": "yarn run build-js && yarn run build-css && yarn run build-assets",
+    "test:dev": "yarn run lint && yarn run build:dev && web-test-runner",
     "watch": "rollup -c -w",
     "lint": "eslint .",
     "pretest": "yarn run lint && yarn run build",
