@@ -15,6 +15,7 @@ import Editor from "trix/models/editor"
 import AttachmentManager from "trix/models/attachment_manager"
 import SelectionManager from "trix/models/selection_manager"
 
+import Middleware from "trix/core/middleware"
 import { getBlockConfig, objectsAreEqual, rangeIsCollapsed, rangesAreEqual } from "trix/core/helpers"
 import { selectionChangeObserver } from "trix/observers/selection_change_observer"
 
@@ -71,6 +72,8 @@ export default class EditorController extends Controller {
 
   constructor({ editorElement, document, html }) {
     super(...arguments)
+    this.renderMiddleware = new Middleware()
+    this.notifyMiddleware = new Middleware()
     this.editorElement = editorElement
     this.selectionManager = new SelectionManager(this.editorElement)
     this.selectionManager.delegate = this
@@ -112,6 +115,10 @@ export default class EditorController extends Controller {
   }
 
   render() {
+    return this.renderMiddleware.run(this, (context) => context.renderOriginal())
+  }
+
+  renderOriginal() {
     return this.compositionController.render()
   }
 
@@ -507,6 +514,10 @@ export default class EditorController extends Controller {
   }
 
   notifyEditorElement(message, data) {
+    return this.notifyMiddleware.run(this, (context) => context.notifyEditorElementOriginal(message, data))
+  }
+
+  notifyEditorElementOriginal(message, data) {
     switch (message) {
       case "document-change":
         this.documentChangedSinceLastRender = true
