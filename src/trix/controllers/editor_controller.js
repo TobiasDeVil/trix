@@ -74,6 +74,7 @@ export default class EditorController extends Controller {
     super(...arguments)
     this.renderMiddleware = new Middleware()
     this.notifyMiddleware = new Middleware()
+    this.documentChangeMiddleware = new Middleware()
     this.editorElement = editorElement
     this.selectionManager = new SelectionManager(this.editorElement)
     this.selectionManager.delegate = this
@@ -129,6 +130,10 @@ export default class EditorController extends Controller {
   // Composition delegate
 
   compositionDidChangeDocument(document) {
+    return this.documentChangeMiddleware.run(this, (context) => context.compositionDidChangeDocumentOriginal(document))
+  }
+
+  compositionDidChangeDocumentOriginal(document) {
     this.notifyEditorElement("document-change")
     if (!this.handlingInput) {
       return this.render()
