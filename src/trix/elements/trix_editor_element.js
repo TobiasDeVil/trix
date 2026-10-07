@@ -11,6 +11,7 @@ import {
 
 import { attachmentSelector } from "trix/config/attachments"
 import EditorController from "trix/controllers/editor_controller"
+import Middleware from "trix/core/middleware"
 import "trix/elements/trix_toolbar_element"
 
 let id = 0
@@ -391,10 +392,12 @@ export default class TrixEditorElement extends HTMLElement {
   static observedAttributes = [ "connected" ]
 
   #delegate
+  extensionMiddleware
 
   constructor() {
     super()
     this.willCreateInput = true
+    this.extensionMiddleware = new Middleware()
     this.#delegate = this.constructor.formAssociated ?
       new ElementInternalsDelegate(this) :
       new LegacyDelegate(this)
@@ -557,6 +560,10 @@ export default class TrixEditorElement extends HTMLElement {
   // Element lifecycle
 
   connectedCallback() {
+    return this.extensionMiddleware.run(this, (context) => context.connectedCallbackOriginal())
+  }
+
+  connectedCallbackOriginal() {
     if (!this.hasAttribute("data-trix-internal")) {
       makeEditable(this)
       addAccessibilityRole(this)
