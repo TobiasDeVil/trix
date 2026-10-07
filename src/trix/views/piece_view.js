@@ -7,12 +7,14 @@ import { NON_BREAKING_SPACE } from "trix/constants"
 import ObjectView from "trix/views/object_view"
 import AttachmentView from "trix/views/attachment_view"
 import PreviewableAttachmentView from "trix/views/previewable_attachment_view"
+import Middleware from "trix/core/middleware"
 
 import { findInnerElement, getTextConfig, makeElement } from "trix/core/helpers"
 
 export default class PieceView extends ObjectView {
   constructor() {
     super(...arguments)
+    this.renderMiddleware = new Middleware()
     this.piece = this.object
     this.attributes = this.piece.getAttributes()
     this.textConfig = this.options.textConfig
@@ -26,6 +28,12 @@ export default class PieceView extends ObjectView {
   }
 
   createNodes() {
+    return this.renderMiddleware.run(this, (context) =>
+      context.createNodesOriginal()
+    )
+  }
+
+  createNodesOriginal() {
     let nodes = this.attachment ? this.createAttachmentNodes() : this.createStringNodes()
     const element = this.createElement()
     if (element) {
