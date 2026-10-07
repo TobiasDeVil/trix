@@ -65,6 +65,7 @@
     "build": "yarn run build-js && yarn run build-css && yarn run build-assets && yarn run build-ruby",
     "build:dev": "yarn run build-js && yarn run build-css && yarn run build-assets",
     "test:dev": "yarn run lint && yarn run build:dev && web-test-runner",
+    "test:browser": "yarn build:dev && web-dev-server --root-dir dist --node-resolve --open /test.html",
     "watch": "rollup -c -w",
     "lint": "eslint .",
     "pretest": "yarn run lint && yarn run build",
