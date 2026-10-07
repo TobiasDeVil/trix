@@ -1,6 +1,7 @@
 import * as config from "trix/config"
 import ObjectView from "trix/views/object_view"
 import TextView from "trix/views/text_view"
+import Middleware from "trix/core/middleware"
 
 import { getBlockConfig, makeElement } from "trix/core/helpers"
 const { css } = config
@@ -8,11 +9,18 @@ const { css } = config
 export default class BlockView extends ObjectView {
   constructor() {
     super(...arguments)
+    this.renderMiddleware = new Middleware()
     this.block = this.object
     this.attributes = this.block.getAttributes()
   }
 
   createNodes() {
+    return this.renderMiddleware.run(this, (context) =>
+      context.createNodesOriginal()
+    )
+  }
+
+  createNodesOriginal() {
     const comment = document.createComment("block")
     const nodes = [ comment ]
     if (this.block.isEmpty()) {
