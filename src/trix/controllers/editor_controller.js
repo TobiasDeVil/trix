@@ -75,6 +75,7 @@ export default class EditorController extends Controller {
     this.renderMiddleware = new Middleware()
     this.notifyMiddleware = new Middleware()
     this.documentChangeMiddleware = new Middleware()
+    this.documentViewSyncMiddleware = new Middleware()
     this.editorElement = editorElement
     this.selectionManager = new SelectionManager(this.editorElement)
     this.selectionManager.delegate = this
@@ -228,6 +229,13 @@ export default class EditorController extends Controller {
   }
 
   compositionControllerDidSyncDocumentView() {
+    return this.documentViewSyncMiddleware.run(
+      this,
+      (context) => context.compositionControllerDidSyncDocumentViewOriginal()
+    )
+  }
+
+  compositionControllerDidSyncDocumentViewOriginal() {
     this.inputController.editorDidSyncDocumentView()
     this.selectionManager.unlock()
     this.updateCurrentActions()
